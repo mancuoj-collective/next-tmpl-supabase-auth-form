@@ -2,7 +2,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ExternalLinkIcon, EyeIcon, EyeOffIcon, GithubIcon, Loader2Icon, LockIcon } from 'lucide-react'
+import { AlertCircleIcon, ExternalLinkIcon, EyeIcon, EyeOffIcon, GithubIcon, Loader2Icon, LockIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -18,7 +18,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
@@ -39,7 +38,7 @@ export default function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <ExternalLinkIcon />
+                <ExternalLinkIcon className="size-4" />
               </a>
             </Button>
           </div>
@@ -108,10 +107,10 @@ function SocialIcons() {
         {
           isGitHubLoading
             ? (
-                <Loader2Icon className="animate-spin" />
+                <Loader2Icon className="size-4 animate-spin" />
               )
             : (
-                <GithubIcon />
+                <GithubIcon className="size-4" />
               )
         }
         Continue with GitHub
@@ -133,10 +132,10 @@ function SocialIcons() {
         {
           isSSOLoading
             ? (
-                <Loader2Icon className="animate-spin" />
+                <Loader2Icon className="size-4 animate-spin" />
               )
             : (
-                <LockIcon />
+                <LockIcon className="size-4" />
               )
         }
         Continue with SSO
@@ -186,12 +185,17 @@ function SignInForm() {
         <FormField
           control={form.control}
           name="email"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="text-muted-foreground">Email</FormLabel>
-              <FormControl>
-                <Input placeholder="you@example.com" {...field} />
-              </FormControl>
+              <div className="relative">
+                <FormControl>
+                  <Input placeholder="you@example.com" {...field} />
+                </FormControl>
+                {fieldState.invalid && (
+                  <AlertCircleIcon className="size-5 absolute right-2 top-1/2 -translate-y-1/2 text-destructive" />
+                )}
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -199,18 +203,23 @@ function SignInForm() {
         <FormField
           control={form.control}
           name="password"
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel className="text-muted-foreground">Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
-              </FormControl>
+              <div className="relative">
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} />
+                </FormControl>
+                {fieldState.invalid && (
+                  <AlertCircleIcon className="size-5 absolute right-2 top-1/2 -translate-y-1/2 text-destructive" />
+                )}
+              </div>
               <FormMessage />
             </FormItem>
           )}
         />
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? <Loader2Icon className="animate-spin" /> : null}
+          {isSubmitting && <Loader2Icon className="animate-spin" /> }
           Sign In
         </Button>
       </form>
@@ -218,33 +227,100 @@ function SignInForm() {
   )
 }
 
+const signUpSchema = z.object({
+  email: z.string().min(1, 'Email is a required field').email('Email must be a valid email'),
+  password: z.string()
+    .min(1, 'Password is a required field')
+    .min(8, 'Password must be at least 8 characters')
+    .max(72, 'Password cannot exceed 72 characters')
+    .regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least 1 lowercase letter')
+    .regex(/\d/, 'Password must contain at least 1 number')
+    .regex(/[^\w\s]/, 'Password must contain at least 1 symbol'),
+})
+
 function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const form = useForm<z.infer<typeof signUpSchema>>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    mode: 'onTouched',
+  })
+
+  function onSubmit(values: z.infer<typeof signUpSchema>) {
+    console.log(values)
+
+    setIsSubmitting(true)
+    const promise = new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(true)
+      }, 1000)
+    }).then(() => {
+      setIsSubmitting(false)
+    })
+
+    toast.promise(promise, {
+      loading: 'Signing up...',
+      success: 'Signed up successfully',
+      error: 'Failed to sign up',
+    })
+  }
+
   return (
-    <div className="flex flex-col gap-4 text-sm">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="email" className="text-muted-foreground">Email</Label>
-        <Input id="email" placeholder="you@example.com" />
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="password" className="text-muted-foreground">Password</Label>
-        <div className="relative">
-          <Input
-            id="password"
-            placeholder="••••••••"
-            type={showPassword ? 'text' : 'password'}
-          />
-          <Button
-            onClick={() => setShowPassword(v => !v)}
-            variant="outline"
-            size="icon"
-            className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground"
-          >
-            {showPassword ? <EyeOffIcon /> : <EyeIcon /> }
-          </Button>
-        </div>
-      </div>
-      <Button>Sign Up</Button>
-    </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 text-sm">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field, fieldState }) => (
+            <FormItem>
+              <FormLabel className="text-muted-foreground">Email</FormLabel>
+              <div className="relative">
+                <FormControl>
+                  <Input placeholder="you@example.com" {...field} />
+                </FormControl>
+                {fieldState.invalid && (
+                  <AlertCircleIcon className="size-5 absolute right-2 top-1/2 -translate-y-1/2 text-destructive" />
+                )}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field, fieldState }) => (
+            <FormItem>
+              <FormLabel className="text-muted-foreground">Password</FormLabel>
+              <div className="relative">
+                <FormControl>
+                  <Input type={showPassword ? 'text' : 'password'} placeholder="••••••••" {...field} />
+                </FormControl>
+                {fieldState.invalid && (
+                  <AlertCircleIcon className="size-5 absolute right-12 top-1/2 -translate-y-1/2 text-destructive" />
+                )}
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 border-input inline-flex items-center justify-center rounded py-1 border px-2"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
+                </button>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && <Loader2Icon className="animate-spin" /> }
+          Sign Up
+        </Button>
+      </form>
+    </Form>
   )
 }

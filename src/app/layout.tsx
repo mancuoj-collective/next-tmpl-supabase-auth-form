@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
-import { IBM_Plex_Mono, Libre_Baskerville, Lora } from 'next/font/google'
+import { DM_Sans, IBM_Plex_Mono, Lora } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
 import '@/styles/globals.css'
 
-const fontSans = Libre_Baskerville({
+const fontSans = DM_Sans({
   variable: '--font-sans',
   subsets: ['latin'],
   weight: ['400', '700'],
