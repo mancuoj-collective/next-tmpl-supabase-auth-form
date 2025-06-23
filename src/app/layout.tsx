@@ -48,7 +48,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" storageKey="next-tmpl-theme" disableTransitionOnChange>
           {children}
-          <Toaster />
+          <Toaster richColors position="top-right" />
         </ThemeProvider>
       </body>
     </html>
