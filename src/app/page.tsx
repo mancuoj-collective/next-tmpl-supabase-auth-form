@@ -219,7 +219,7 @@ function SignInForm() {
           )}
         />
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <Loader2Icon className="animate-spin" /> }
+          {isSubmitting && <Loader2Icon className="animate-spin size-4" /> }
           Sign In
         </Button>
       </form>
@@ -306,8 +306,9 @@ function SignUpForm() {
                 )}
                 <button
                   type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 border-input inline-flex items-center justify-center rounded py-1 border px-2"
-                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 border-input inline-flex items-center justify-center rounded py-1 border px-2 cursor-pointer"
+                  // 放到事件循环末尾，等校验和失焦都处理完再切换可见性
+                  onClick={() => setTimeout(() => setShowPassword(v => !v), 0)}
                 >
                   {showPassword ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
                 </button>
@@ -317,7 +318,7 @@ function SignUpForm() {
           )}
         />
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <Loader2Icon className="animate-spin" /> }
+          {isSubmitting && <Loader2Icon className="animate-spin size-4" /> }
           Sign Up
         </Button>
       </form>
