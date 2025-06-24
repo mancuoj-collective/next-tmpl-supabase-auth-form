@@ -2,7 +2,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertCircleIcon, ExternalLinkIcon, EyeIcon, EyeOffIcon, GithubIcon, Loader2Icon, LockIcon } from 'lucide-react'
+import { AlertCircleIcon, CheckIcon, ExternalLinkIcon, EyeIcon, EyeOffIcon, GithubIcon, Loader2Icon, LockIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -20,6 +20,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 
 export default function Home() {
   return (
@@ -253,6 +254,16 @@ function SignUpForm() {
     mode: 'onTouched',
   })
 
+  const password = form.watch('password')
+  const passwordRequirements = [
+    { label: 'Uppercase letter', isMet: /[A-Z]/.test(password) },
+    { label: 'Lowercase letter', isMet: /[a-z]/.test(password) },
+    { label: 'Number', isMet: /\d/.test(password) },
+    { label: 'Special character (e.g. !?<>@#$%)', isMet: /[^\w\s]/.test(password) },
+    { label: '8 characters or more', isMet: password.length >= 8 },
+    { label: '72 characters or less', isMet: password.length <= 72 },
+  ]
+
   function onSubmit(values: z.infer<typeof signUpSchema>) {
     console.log(values)
 
@@ -318,6 +329,18 @@ function SignUpForm() {
             </FormItem>
           )}
         />
+        <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+          {passwordRequirements.map(({ label, isMet }) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <span className={cn('size-3.5 rounded-full border border-input flex items-center justify-center', isMet && 'bg-input')}>
+                {
+                  isMet && <CheckIcon className="size-2.5" />
+                }
+              </span>
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting && <Loader2Icon className="animate-spin size-4" /> }
           Sign Up

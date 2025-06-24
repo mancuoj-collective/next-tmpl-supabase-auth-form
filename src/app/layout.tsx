@@ -43,7 +43,7 @@ export default function RootLayout({
           fontSans.variable,
           fontMono.variable,
           fontSerif.variable,
-          'font-sans antialiased',
+          'font-serif antialiased',
         )}
       >
         <ThemeProvider attribute="class" storageKey="next-tmpl-theme" disableTransitionOnChange>
