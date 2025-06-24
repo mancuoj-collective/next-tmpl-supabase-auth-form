@@ -257,12 +257,12 @@ function SignUpForm() {
 
   const password = form.watch('password')
   const passwordRequirements = [
-    { label: 'Uppercase letter', isMet: /[A-Z]/.test(password) },
-    { label: 'Lowercase letter', isMet: /[a-z]/.test(password) },
-    { label: 'Number', isMet: /\d/.test(password) },
-    { label: 'Special character (e.g. !?<>@#$%)', isMet: /[^\w\s]/.test(password) },
-    { label: '8 characters or more', isMet: password.length >= 8 },
-    { label: '72 characters or less', isMet: password.length <= 72 },
+    { label: 'Uppercase letter', isMet: /[A-Z]/.test(password), show: true },
+    { label: 'Lowercase letter', isMet: /[a-z]/.test(password), show: true },
+    { label: 'Number', isMet: /\d/.test(password), show: true },
+    { label: 'Special character (e.g. !?<>@#$%)', isMet: /[^\w\s]/.test(password), show: true },
+    { label: '8 characters or more', isMet: password.length >= 8, show: true },
+    { label: '72 characters or less', isMet: password.length <= 72, show: password.length > 72 },
   ]
 
   function onSubmit(values: z.infer<typeof signUpSchema>) {
@@ -341,13 +341,15 @@ function SignUpForm() {
             'mb-4 flex flex-col gap-1 text-sm text-muted-foreground',
           )}
           >
-            {passwordRequirements.map(({ label, isMet }) => (
-              <div key={label} className="flex items-center gap-1.5">
-                <span className={cn('size-3.5 rounded-full border flex items-center justify-center', isMet && 'bg-border')}>
-                  {isMet && <CheckIcon className="size-2.5" />}
-                </span>
-                <span>{label}</span>
-              </div>
+            {passwordRequirements.map(({ label, isMet, show }) => (
+              show && (
+                <div key={label} className="flex items-center gap-1.5">
+                  <span className={cn('size-3.5 rounded-full border flex items-center justify-center', isMet && 'bg-border', !show && 'bg-destructive/20')}>
+                    {isMet && <CheckIcon className="size-2.5" />}
+                  </span>
+                  <span>{label}</span>
+                </div>
+              )
             ))}
           </div>
         )}
