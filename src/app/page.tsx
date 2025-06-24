@@ -245,6 +245,7 @@ const signUpSchema = z.object({
 function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false)
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -312,7 +313,12 @@ function SignUpForm() {
               <FormLabel className="text-muted-foreground">Password</FormLabel>
               <div className="relative">
                 <FormControl>
-                  <Input type={showPassword ? 'text' : 'password'} placeholder="••••••••" {...field} />
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    {...field}
+                    onFocus={() => setShowPasswordRequirements(true)}
+                  />
                 </FormControl>
                 {fieldState.invalid && (
                   <AlertCircleIcon className="size-5 absolute right-12 top-1/2 -translate-y-1/2 text-destructive" />
@@ -329,18 +335,22 @@ function SignUpForm() {
             </FormItem>
           )}
         />
-        <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-          {passwordRequirements.map(({ label, isMet }) => (
-            <div key={label} className="flex items-center gap-1.5">
-              <span className={cn('size-3.5 rounded-full border border-input flex items-center justify-center', isMet && 'bg-input')}>
-                {
-                  isMet && <CheckIcon className="size-2.5" />
-                }
-              </span>
-              <span>{label}</span>
-            </div>
-          ))}
-        </div>
+        {showPasswordRequirements && (
+          <div className={cn(
+            'animate-in slide-in-from-top-4 fade-in duration-500',
+            'mb-4 flex flex-col gap-1 text-sm text-muted-foreground',
+          )}
+          >
+            {passwordRequirements.map(({ label, isMet }) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <span className={cn('size-3.5 rounded-full border flex items-center justify-center', isMet && 'bg-border')}>
+                  {isMet && <CheckIcon className="size-2.5" />}
+                </span>
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+        )}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting && <Loader2Icon className="animate-spin size-4" /> }
           Sign Up
