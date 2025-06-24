@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center h-svh">
+    <div className="flex flex-col items-center p-8 md:pt-18 h-svh">
       <Tabs defaultValue="sign-in">
         <div className="flex items-center justify-between">
           <TabsList>
@@ -72,7 +72,7 @@ function SignCard({
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
       <div className="flex flex-col gap-5">
-        <SocialIcons />
+        <SocialIcons isSignIn={isSignIn} />
         <div className="flex w-full items-center justify-center overflow-hidden">
           <Separator />
           <span className="px-2 text-sm text-muted-foreground">or</span>
@@ -84,7 +84,7 @@ function SignCard({
   )
 }
 
-function SocialIcons() {
+function SocialIcons({ isSignIn }: { isSignIn: boolean }) {
   const [isGitHubLoading, setIsGitHubLoading] = useState(false)
   const [isSSOLoading, setIsSSOLoading] = useState(false)
 
@@ -115,31 +115,33 @@ function SocialIcons() {
         }
         Continue with GitHub
       </Button>
-      <Button
-        variant="outline"
-        disabled={isSSOLoading}
-        onClick={() => {
-          setIsSSOLoading(true)
-          new Promise((resolve) => {
-            setTimeout(() => {
-              resolve(true)
-            }, 1000)
-          }).then(() => {
-            setIsSSOLoading(false)
-          })
-        }}
-      >
-        {
-          isSSOLoading
-            ? (
-                <Loader2Icon className="size-4 animate-spin" />
-              )
-            : (
-                <LockIcon className="size-4" />
-              )
-        }
-        Continue with SSO
-      </Button>
+      { isSignIn && (
+        <Button
+          variant="outline"
+          disabled={isSSOLoading}
+          onClick={() => {
+            setIsSSOLoading(true)
+            new Promise((resolve) => {
+              setTimeout(() => {
+                resolve(true)
+              }, 1000)
+            }).then(() => {
+              setIsSSOLoading(false)
+            })
+          }}
+        >
+          {
+            isSSOLoading
+              ? (
+                  <Loader2Icon className="size-4 animate-spin" />
+                )
+              : (
+                  <LockIcon className="size-4" />
+                )
+          }
+          Continue with SSO
+        </Button>
+      )}
     </>
   )
 }
@@ -164,18 +166,18 @@ function SignInForm() {
     console.log(values)
 
     setIsSubmitting(true)
-    const promise = new Promise((resolve) => {
+    const promise = new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve(true)
+        Math.random() > 0.5 ? resolve(true) : reject(new Error('Invalid login credentials'))
       }, 1000)
-    }).then(() => {
+    }).finally(() => {
       setIsSubmitting(false)
     })
 
     toast.promise(promise, {
       loading: 'Signing in...',
       success: 'Signed in successfully',
-      error: 'Invalid login credentials',
+      error: error => error.message || 'Unknown error',
     })
   }
 
@@ -255,18 +257,18 @@ function SignUpForm() {
     console.log(values)
 
     setIsSubmitting(true)
-    const promise = new Promise((resolve) => {
+    const promise = new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve(true)
+        Math.random() > 0.5 ? resolve(true) : reject(new Error('Failed to sign up'))
       }, 1000)
-    }).then(() => {
+    }).finally(() => {
       setIsSubmitting(false)
     })
 
     toast.promise(promise, {
       loading: 'Signing up...',
       success: 'Signed up successfully',
-      error: 'Failed to sign up',
+      error: error => error.message || 'Unknown error',
     })
   }
 
@@ -306,9 +308,8 @@ function SignUpForm() {
                 )}
                 <button
                   type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 border-input inline-flex items-center justify-center rounded py-1 border px-2 cursor-pointer"
-                  // 放到事件循环末尾，等校验和失焦都处理完再切换可见性
-                  onClick={() => setTimeout(() => setShowPassword(v => !v), 0)}
+                  className="z-50 absolute right-2 top-1/2 -translate-y-1/2 border-input inline-flex items-center justify-center rounded py-1 border px-2 cursor-pointer"
+                  onClick={() => setShowPassword(v => !v)}
                 >
                   {showPassword ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
                 </button>
