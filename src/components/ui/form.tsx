@@ -100,7 +100,7 @@ function FormLabel({
     <Label
       data-slot="form-label"
       data-error={!!error}
-      className={cn('data-[error=true]:text-destructive', className)}
+      className={cn('', className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -152,7 +152,7 @@ function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
       id={formMessageId}
       className={cn(
         'text-destructive text-sm',
-        'animate-in slide-in-from-top-2 fade-in duration-300',
+        'animate-in slide-in-from-top-1 duration-300',
         className,
       )}
       {...props}
